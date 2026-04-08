@@ -8,33 +8,57 @@ Not a summary. An analyst that reads everything, finds the signal, and tells you
 
 ## Newsletter Sources
 
-Newsletters are pulled from Gmail and tiered by signal quality. To add or move a source, relabel it in Gmail.
+Newsletters are pulled from Gmail and tiered by signal quality. To add or move a source, relabel it in Gmail and update `config.py` → `NEWSLETTER_TIERS`.
 
 ### 🏛 Foundation
-*First-principles thinking, long-form analysis, high prior probability of being right.*
-- *(none assigned yet — add your highest-conviction sources here)*
+*First-principles thinking, long-form analysis, high prior probability of being right. Weight: 2.0×*
+- [Paul Graham](https://paulgraham.com) — Essays on startups, technology, and thinking
+- [Venkatesh Rao / Ribbonfarm](https://www.ribbonfarm.com) — Long-form systems and strategy essays
 
 ### 🔍 Reality Check
-*Practitioner takes, empirical evidence, rigorous scepticism.*
+*Practitioner takes, empirical evidence, rigorous scepticism. Weight: 1.8×*
 - [Gary Marcus](https://garymarcus.substack.com) — AI capability critique, benchmark analysis
 - [Noah Smith / Noahpinion](https://noahpinion.blog) — Economic and macro structural analysis
+- [Ethan Mollick / One Useful Thing](https://www.oneusefulthing.org) — Rigorous AI in practice research
+- [Import AI](https://importai.substack.com) — Jack Clark's weekly AI research digest
+- [Nate's Substack](https://natesnewsletter.substack.com) — AI agent architecture
 
 ### 🔨 Blueprint
-*Tactical implementation, business frameworks, how-tos from people doing it.*
+*Tactical implementation, business frameworks, how-tos from people doing it. Weight: 1.5×*
 - [Lenny Rachitsky](https://www.lennysnewsletter.com) — Product, growth, and AI in practice
-- [Dan Martell](https://danmartell.com) — SaaS founder playbooks
+- [Dan Martell / SaaS Academy](https://danmartell.com) — SaaS founder playbooks
+- [Alistair Croll](https://alistair.substack.com) — Product strategy and lean analytics
+- [Ash Maurya / Lean Stack](https://leanstack.com) — Lean startup and business model design
 
 ### ⚡ Edge
-*Early signals, emerging tools, things worth knowing before they're obvious.*
+*Early signals, emerging tools, things worth knowing before they're obvious. Weight: 1.5×*
 - [Ben's Bites](https://www.bensbites.com) — Daily AI news and product launches
+- [Simon Willison](https://simonwillison.net) — LLM tooling, developer signal, hands-on AI
+- [Greg Isenberg / Late Checkout](https://gregisenberg.com) — AI business ideas and solopreneur opportunities
+- [Every](https://every.to) — AI-native business and product writing
 
 ### 📰 Other
-*Broader context and signal from adjacent domains.*
+*Broader context and signal from adjacent domains. Weight: 0.5×*
 - [TLDR](https://tldr.tech) — Developer and tech news digest
-- [Nate's Substack](https://natesnewsletter.substack.com) — AI agent architecture
 - [Replit](https://replit.com) — Developer tools and product launches
 - [Sam Harris / Making Sense](https://samharris.org) — Philosophy, technology, long-form
 - [Mark Manson](https://markmanson.net) — Mental models and decision-making
+- [Stratechery](https://stratechery.com) — Ben Thompson on tech strategy
+- [Not Boring](https://www.notboring.co) — Packy McCormick on tech and business
+- [Every](https://every.to) — AI-native essays and tools
+- [Morning Brew](https://www.morningbrew.com) — Business and tech news
+- [The Batch](https://www.deeplearning.ai/the-batch/) — DeepLearning.AI weekly AI digest
+- [CEO Dinner](https://ceodinner.com) — Founder network and insights
+- [Cory Muscara](https://corymuscara.com) — Mindfulness and performance
+- [James Clear](https://jamesclear.com) — Habits and decision-making
+- [Ryan Holiday](https://ryanholiday.net) — Stoicism and strategy
+- [Benjamin Hardy](https://benjaminhardy.com) — Psychology and performance
+- [Bryan Johnson / Blueprint](https://blueprint.bryanjohnson.com) — Longevity and optimisation
+- [Andrew Huberman](https://hubermanlab.com) — Neuroscience and performance
+- [Rhonda Patrick / FoundMyFitness](https://www.foundmyfitness.com) — Health science
+- [The Information](https://www.theinformation.com) — Tech industry reporting
+- [Pirate Wires](https://www.piratewires.com) — Tech culture and politics
+- [John Cutler / Cutlefish](https://cutlefish.substack.com) — Product management depth
 
 ---
 
