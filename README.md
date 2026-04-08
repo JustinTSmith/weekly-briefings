@@ -14,8 +14,6 @@ Newsletters are pulled from Gmail and tiered by signal quality. To add or move a
 *First-principles thinking, long-form analysis, high prior probability of being right. Weight: 2.0×*
 - [Paul Graham](https://paulgraham.com) — Essays on startups, technology, and thinking
 - [Venkatesh Rao / Ribbonfarm](https://www.ribbonfarm.com) — Long-form systems and strategy essays
-- [Sam Harris / Making Sense](https://samharris.org) — Philosophy, technology, long-form reasoning
-- [Mark Manson](https://markmanson.net) — Values-based mental models and decision-making
 
 ### 🔍 Reality Check
 *Practitioner takes, empirical evidence, rigorous scepticism. Weight: 1.8×*
@@ -51,6 +49,8 @@ Newsletters are pulled from Gmail and tiered by signal quality. To add or move a
 
 ### 🧘 Personal Development
 *Mental models, habits, and performance. Weight: 0.8×*
+- [Sam Harris / Making Sense](https://samharris.org) — Philosophy, technology, long-form reasoning
+- [Mark Manson](https://markmanson.net) — Values-based mental models and decision-making
 - [Cory Muscara](https://corymuscara.com) — Mindfulness and performance
 - [James Clear](https://jamesclear.com) — Habits and decision-making
 - [Ryan Holiday](https://ryanholiday.net) — Stoicism and strategy
