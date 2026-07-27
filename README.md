@@ -1,127 +1,64 @@
-# Intelligence Briefings
+# weekly-briefings
 
-Automated weekly and monthly briefings on AI, technology, and solopreneur business opportunities — generated from a curated newsletter stack enriched with live web research and written by Claude.
+AI-generated weekly intelligence briefings, synthesized from a curated newsletter stack by an automated Gmail-to-inbox pipeline. This repo holds the published output; the generator is a single Python script that runs unattended every Sunday.
 
-Not a summary. An analyst that reads everything, finds the signal, and tells you what to build next.
+## What it does
 
----
+- Pulls the past 7 days of newsletters (Lenny's Newsletter, Gary Marcus, Nate's Newsletter, Sandhill East) directly from Gmail via the Gmail REST API, with OAuth token refresh handled in-script
+- Merges in a "weekly diff" of structural market signals (GitHub trending, HN, funding data) produced by a separate weekly research job, capped at 12,000 characters
+- Runs a local analysis pass on Qwen3.5-35B-A3B (4-bit, served by oMLX on localhost) that extracts strict JSON: one cross-source signal, exactly 5 build opportunities, 8-10 quantified trends, 2-4 structural shifts, and 3 actions
+- Hands the structured analysis to claude-opus-4-6 for the final prose pass, in a fixed briefing format where every opportunity must anchor to a $10K MRR path
+- Delivers the result as a Gmail draft (plain text plus HTML, converted by a purpose-built markdown renderer) and saves a local markdown copy
+- Kicks off a background NotebookLM job that turns the week's diff into a podcast-style audio overview
 
-## Newsletter Sources
+The dated files in this repo (three ~3,200-3,400 word weekly briefings from April 2026, plus two monthly digests in `monthly/`) are real pipeline output, unedited.
 
-Newsletters are pulled from Gmail and tiered by signal quality. Each tier carries a different synthesis weight — Foundation ideas carry 4× more influence on the briefing than noise from Other. To add or move a source, relabel it in Gmail and update `config.py` → `NEWSLETTER_TIERS`.
+## Why it exists
 
-### 🏛 Foundation
-*The highest-conviction sources. Long-form, first-principles thinking from people with a strong track record of being right before it's obvious. These shape the analytical frame — not the news cycle. Weight: 2.0×*
+A good newsletter stack produces more reading than one person can process, and most of it is noise. The interesting part is what emerges across sources in the same week: when a practitioner newsletter, an AI skeptic, and GitHub trending data all point at the same shift, that convergence is the signal. This pipeline does the cross-source reading and returns one document per week with a thesis, concrete build opportunities, and numbers, instead of a stack of summaries.
 
-- **[Paul Graham](https://paulgraham.com)** — Periodic essays on startups, founders, and what's worth building. Dense with applicable principles; one essay often contains more signal than a month of tactical newsletters.
-- **[Venkatesh Rao / Ribbonfarm](https://www.ribbonfarm.com)** — Long, systems-level essays on technology, culture, and how complex things actually work. Slow to read, high residual value.
+## Architecture
 
-### 🔍 Reality Check
-*Practitioner analysis and empirical takes. These sources challenge hype with data, benchmark claims against evidence, and cover the structural forces shaping tech and business. Weight: 1.8×*
-
-- **[Gary Marcus](https://garymarcus.substack.com)** — The most rigorous AI sceptic writing today. Strong on benchmark critique, capability gaps, and what LLMs still can't do reliably. Essential counterweight to hype.
-- **[Noah Smith / Noahpinion](https://noahpinion.blog)** — Macro economist turned tech analyst. Excellent on industrial policy, AI's economic impact, and long-run structural trends. Data-heavy, well-reasoned.
-- **[Ethan Mollick / One Useful Thing](https://www.oneusefulthing.org)** — Wharton professor who actually uses AI tools in his work and publishes findings. Rigorous on what works, what doesn't, and how to think about human-AI collaboration.
-- **[Import AI](https://importai.substack.com)** — Jack Clark's weekly digest of AI research papers and capability developments. Dense technical summary; useful for tracking what's actually advancing vs. marketing.
-- **[Nate's Substack](https://natesnewsletter.substack.com)** — Focused on AI agent architecture, orchestration patterns, and the practical plumbing of multi-agent systems. Useful for building, not just watching.
-- **[Stratechery](https://stratechery.com)** — Ben Thompson's framework-driven tech strategy analysis. Best source for understanding platform dynamics, business model shifts, and why companies make the moves they make.
-- **[The Batch](https://www.deeplearning.ai/the-batch/)** — Andrew Ng's weekly AI digest from DeepLearning.AI. Covers research, applications, and industry moves with a practitioner lens. Good signal-to-noise ratio.
-- **[The Information](https://www.theinformation.com)** — Investigative tech journalism. Breaks stories before the press release, covers funding rounds, internal dynamics, and strategic moves that shape the industry.
-
-### 🔨 Blueprint
-*Tactical and operational. These sources tell you how to build, price, and sell — not just what to think about. Business model frameworks, founder playbooks, and product thinking from people doing it at scale. Weight: 1.5×*
-
-- **[Lenny Rachitsky](https://www.lennysnewsletter.com)** — Deep dives on product, growth, and go-to-market from a former Airbnb PM turned researcher. Interviews top operators; data-backed takes on what actually drives retention and growth.
-- **[Dan Martell / SaaS Academy](https://danmartell.com)** — SaaS-specific playbooks for founders. Strong on pricing, hiring leverage, and the operational mechanics of scaling a software business without burning out.
-- **[Alistair Croll](https://alistair.substack.com)** — Co-author of *Lean Analytics*. Sharp on product strategy, metrics that matter, and the intersection of data and product decisions. Underrated.
-- **[Ash Maurya / Lean Stack](https://leanstack.com)** — Creator of the Lean Canvas. Covers customer discovery, business model design, and how to stress-test ideas before building. Useful early in the opportunity pipeline.
-- **[Arvid Kahl / The Bootstrapped Founder](https://thebootstrappedfounder.com)** — Built and sold a SaaS in 2 years with no VC. Writes exclusively about the zero-VC, micro-team, product-led model — audience building, monetisation without external capital, and when to sell. The most direct voice for the $1–3M lean business thesis on this list.
-- **[Demand Curve](https://www.demandcurve.com/newsletter)** — Julian Shapiro's growth mechanics newsletter. Publishes what's actually working in cold email, content marketing, SEO, and organic acquisition — with data. The most rigorous free growth newsletter available. Fills the distribution gap directly.
-- **[Luke Sophinos / Vertical Software & AI](https://www.newsletter.lukesophinos.com)** — Built and sold a vertical SaaS. Covers the operating mechanics of niche software businesses: pricing power, churn, customer concentration, and when to layer AI on an existing workflow. The dedicated feed for the "boring business + AI" thesis.
-- **[Every](https://every.to)** — Bundle of AI-native writers covering business, productivity, and the craft of building with LLMs. Strong on the "how do you actually use this" layer that most AI coverage misses.
-- **[Not Boring](https://www.notboring.co)** — Packy McCormick's long-form analysis of interesting companies and business models. Excellent for understanding what makes a specific business work and why it's defensible.
-- **[CEO Dinner](https://ceodinner.com)** — Condensed founder wisdom and operator takes. Useful for pattern-matching across how founders at different stages think about the same problems.
-- **[John Cutler / Cutlefish](https://cutlefish.substack.com)** — The most thoughtful writer on product management and organisational dynamics. Essential if you're building anything involving teams, prioritisation, or product culture.
-
-### ⚡ Edge
-*Early signals and ambient awareness. These sources surface what's launching, what developers are building, and what's entering the discourse before it becomes consensus. Lower analytical depth, high breadth. Weight: 1.5×*
-
-- **[Ben's Bites](https://www.bensbites.com)** — Daily AI news digest. Best for catching product launches, funding rounds, and model releases within 24 hours. Broad, fast, well-curated.
-- **[Latent Space](https://www.latent.space)** — swyx and Alessio's AI engineering newsletter. Deep dives on agents, evals, RAG, memory, orchestration, and model architecture — written by and for people building with LLMs. The most important AI engineering publication not yet in this stack; fills the implementation-depth gap that Import AI and The Batch leave open.
-- **[Simon Willison](https://simonwillison.net)** — Hands-on LLM developer and creator of Datasette. Posts detailed notes on what he's building and what he's observing. Strong leading indicator of where developer tooling is heading.
-- **[Greg Isenberg / Late Checkout](https://gregisenberg.com)** — AI business idea generation and solopreneur opportunity analysis. High volume, uneven quality — but useful for spotting the shape of emerging micro-markets.
-- **[TLDR](https://tldr.tech)** — Developer-facing tech news digest. Good for ambient awareness of what engineers are discussing, what tools are gaining traction, and what just shipped.
-- **[Replit](https://replit.com)** — Product updates and community signals from the leading browser-based coding platform. Useful for tracking the AI coding market and what non-technical builders are doing.
-- **[Morning Brew](https://www.morningbrew.com)** — Business and tech news with a broad lens. Background signal on macro business moves; useful for context rather than depth.
-- **[Pirate Wires](https://www.piratewires.com)** — Tech culture, politics, and the ideological currents running through Silicon Valley. Useful for understanding the social context in which tech companies operate.
-
-### 🧘 Personal Development
-*Mental models, philosophy, and performance. Lower synthesis weight — included for cross-domain pattern recognition rather than direct business signal. Weight: 0.8×*
-
-- **[Sam Harris / Making Sense](https://samharris.org)** — Long-form exploration of consciousness, technology, ethics, and rationality. Useful for stress-testing assumptions and thinking clearly about things that matter.
-- **[Mark Manson](https://markmanson.net)** — Counterintuitive takes on values, priorities, and decision-making. Better than the self-help genre it superficially resembles; focused on what actually matters vs. what feels productive.
-- **[Cory Muscara](https://corymuscara.com)** — Mindfulness and performance at the intersection of neuroscience and contemplative practice. Useful for attention, focus, and managing the psychological load of building.
-- **[James Clear](https://jamesclear.com)** — Habits, systems, and incremental improvement. Widely read for a reason — practical frameworks for behaviour change with solid research backing.
-- **[Ryan Holiday](https://ryanholiday.net)** — Stoic philosophy applied to modern challenges. Strong on ego, resilience, and operating under pressure. More useful during hard stretches than easy ones.
-- **[Benjamin Hardy](https://benjaminhardy.com)** — Psychology of identity, future self, and deliberate change. Occasionally too motivational in tone, but the underlying frameworks on how people change are solid.
-
----
-
-## How It Works
-
-### Weekly — 3 Stages
-
-```
-Gmail newsletters → DeepSeek-R1 (local) → parallel research → Claude Sonnet → your inbox + this repo
+```mermaid
+flowchart TD
+    A[Gmail inbox<br/>4 newsletter sources] -->|Gmail REST API<br/>newer_than:7d, OAuth refresh| B[Newsletter fetch]
+    C[Weekly diff files<br/>market signals] -->|most recent, 12K char cap| D[Diff loader]
+    B --> E[Analysis pass<br/>Qwen3.5-35B-A3B via oMLX, local]
+    D --> E
+    E -->|strict JSON:<br/>signal, 5 opportunities,<br/>8-10 trends, shifts, actions| F[JSON parse + repair<br/>sanitize, truncation recovery]
+    F --> G[Writing pass<br/>claude-opus-4-6 via API]
+    G --> H[Briefing markdown]
+    H --> I[Local copy<br/>briefings/YYYY-MM-DD.md]
+    H -->|markdown-to-HTML| J[Gmail draft<br/>to own inbox]
+    H -.->|background| K[NotebookLM<br/>audio overview]
 ```
 
-**Stage 1 — Synthesis (local, free)**
-DeepSeek-R1 running on Ollama reads the week's newsletters and produces structured analytical notes: themes, cross-domain connections, weak signals, business opportunities.
+Scheduled by a macOS LaunchAgent every Sunday at 8am. No servers, no framework: one Python file using only the standard library for HTTP, JSON, and MIME.
 
-**Stage 2 — Live research (parallel)**
-Six workers run simultaneously against the synthesis:
-- `last30days` — Reddit, X/Twitter, YouTube, HN per section
-- GitHub Trending — what developers are actually building this week
-- ProductHunt — what's launching in adjacent spaces
-- Funding Radar — recent AI/tech deals via TechCrunch RSS
-- HN Who's Hiring — monthly thread filtered for AI/ML/remote roles
-- People signal — targeted searches to surface practitioners worth following
+## Quick start
 
-**Stage 3 — Writing (Claude Sonnet)**
-Takes everything above and writes the final briefing. Decodes Substack redirect URLs to clean article links. Filters tweet cards to 50+ likes (proxy for >1,000 followers).
+Read the output first. Any dated file (for example `2026-04-07.md`) shows what a full run produces.
 
-### Monthly — 3 Stages
+To run the generator (lives in a separate scripts directory):
 
-Same analytical framework across a 3-month rolling window, with 2× weight on the current month. Opus writes the final ~3,000-word digest after a DuckDuckGo search pass for tools and repos.
+```bash
+# Prerequisites:
+# - Gmail OAuth token at ~/Workspace/scripts/gmail-automation/token.json
+# - ANTHROPIC_API_KEY in ~/.config/ai/.env
+# - oMLX serving Qwen3.5-35B-A3B on http://127.0.0.1:8000
 
----
+python3 run.py                  # full pipeline: fetch -> analyze -> write -> draft
+python3 notebooklm_audio.py     # audio overview only, from the latest weekly diff
+```
 
-## Sections (Weekly)
+## Design decisions
 
-| | Section | Purpose |
-|--|---------|---------|
-| 🎯 | **This Week's Signal** | The single most important shift — what changed and the 12-month implication |
-| 🏗 | **Build Opportunity Scan** | Opportunities with `[noise]` / `[watch]` / `[act]` conviction ratings, ICP, and path to $10k MRR |
-| 📈 | **Trend Velocity** | Accelerating, plateauing, or fading — per major theme, with evidence |
-| 🔗 | **Cross-Disciplinary Synthesis** | Where two unrelated signals rhyme |
-| 💡 | **Contrarian Take** | One clear position against the week's consensus |
-| 📊 | **Weak Signals** | Early patterns worth watching before they're obvious |
-| 🔁 | **Resurface** | Signals from 4 and 12 weeks ago re-examined with current context |
-| ⚡ | **Quick Hits** | 5–7 one-liners with links |
-| 👥 | **People Worth Following** | 6–8 practitioners with specific reasons tied to this week |
-| ✅ | **This Week's 3 Actions** | Concrete next steps from `[act]`-rated opportunities |
-| 📚 | **Deep Reads** | Direct article links decoded from newsletter email HTML |
+- Split the work by model economics. The heavy reading (up to 20,000 characters per newsletter, 10 messages per source) goes to a free local model. The frontier model only sees the distilled JSON and writes about 5,000 tokens of prose. One API call per week.
+- Fetch Gmail directly, not through an agent. An earlier version shelled out to an interactive AI CLI with a Gmail MCP server; it could not authenticate headless under launchd and failed silently for weeks. The rewrite uses the Gmail REST API with an explicit token refresh path, per the docstring in `run.py`.
+- Assume the local model's JSON is broken. The parser runs three stages: raw parse, whitespace-escape sanitization, then truncation repair that closes open braces at the last complete top-level value. Thinking mode is disabled explicitly (`chat_template_kwargs: {"enable_thinking": false}`) because reasoning models otherwise emit their planning monologue instead of JSON and run to the token cap.
+- Constrain the output shape in the prompt, not in code. Opportunity counts, trend counts, the $10K MRR anchor, and the section order are all enforced by prompt rules; the samples in this repo show the constraint holding across runs.
+- The section layout has evolved. The April 2026 samples in this repo use an earlier prompt template; the current `run.py` template emits Signal, Build Opportunity Scan, Trend Velocity, Structural Shifts, and Actions.
 
----
+## Status
 
-## Stack
-
-| | Tool |
-|--|------|
-| Ingestion | Gmail API |
-| Local LLM | Ollama — `deepseek-r1:latest` |
-| Weekly writing | Claude Sonnet (`claude-sonnet-4-6`) |
-| Monthly writing | Claude Opus (`claude-opus-4-6`) |
-| Research | `last30days` skill + `requests` / `BeautifulSoup` |
-| State / dedup | SQLite |
-| Source | `~/Workspace/scripts/gmail-automation/` |
+Active. The generator last changed on 2026-07-25 and produced its most recent briefing the week of 2026-07-21. The sample briefings and monthly digests in this repo are the proof of output quality; they are committed exactly as generated.
